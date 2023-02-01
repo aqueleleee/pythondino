@@ -128,7 +128,7 @@ jump_sfx = mixer.Sound("assets/sfx/jump.mp3")
 
 road_image = transform.scale(image.load('assets\\road.png'), (1100, 24))
 road_x = 0
-game_speed = 10
+game_speed = 1000
 obstacle_spawn = False
 obstacle_timer = 0
 obstacle_cooldown = 2000
