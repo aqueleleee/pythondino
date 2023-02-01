@@ -137,6 +137,7 @@ player_score_last= 0
 score_rect = (420, 310)
 best_score_rect = (390, 340)
 game_font = font.Font('assets\PressStart2P-Regular.ttf', 24)
+welcome_text = game_font.render("Press Space to start",True, 'black')
 
 sun = transform.scale(image.load('assets\\sun.png'), (100, 100))
 cloud_group = sprite.Group()
@@ -155,7 +156,8 @@ def set_best_score():
 
 dino = Dino()
 game = True
-finish = False
+finish = True
+first_screen = True
 
 def end_game():
     global best_score
@@ -184,7 +186,10 @@ if __name__ == '__main__':
             if even.type == KEYDOWN:
                 if even.key == K_SPACE:
                     finish = False
-
+        if first_screen:
+            window.fill((230, 230, 230))
+            window.blit(welcome_text, (300, 300))
+            first_screen = False
 
         if finish != True:
             window.fill((230, 230, 230))
