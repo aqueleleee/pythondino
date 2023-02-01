@@ -128,14 +128,14 @@ jump_sfx = mixer.Sound("assets/sfx/jump.mp3")
 
 road_image = transform.scale(image.load('assets\\road.png'), (1100, 24))
 road_x = 0
-game_speed = 1000
+game_speed = 10
 obstacle_spawn = False
 obstacle_timer = 0
 obstacle_cooldown = 2000
 player_score = 0
-player_score_max = 0
+player_score_last= 0
 score_rect = (420, 310)
-
+best_score_rect = (390, 340)
 game_font = font.Font('assets\PressStart2P-Regular.ttf', 24)
 
 sun = transform.scale(image.load('assets\\sun.png'), (100, 100))
@@ -143,20 +143,34 @@ cloud_group = sprite.Group()
 obstacle_group = sprite.Group()
 ptero_group =  sprite.Group()
 
+with open('score.txt', 'r') as f:
+    try:
+        best_score = int(f.read())
+    except:
+        best_score = 0
+
+def set_best_score():
+    with open('score.txt', 'w') as f:
+        f.write(str(int(best_score)))
+
 dino = Dino()
 game = True
 finish = False
 
 def end_game():
+    global best_score
     global player_score
     global finish
     death_sfx.play()
     finish = True
     game_over_text = game_font.render("Game Over!", True, "black")
+    best_score_text = game_font.render(f"Best score:{int(best_score)}", True, "black")
     game_over_rect = game_over_text.get_rect(center=(530, 280))
     score_text = game_font.render(f"Score:{int(player_score)}", True, "black")
+    set_best_score()
     window.blit(game_over_text, game_over_rect)
     window.blit(score_text, score_rect)
+    window.blit(best_score_text, best_score_rect)
     player_score = 0
     cloud_group.empty()
     obstacle_group.empty()
@@ -183,16 +197,18 @@ if __name__ == '__main__':
             window.blit(sun, (900, 100))
 
             player_score += 0.1
-            if player_score - player_score_max >= 100:
+            if player_score - player_score_last >= 100:
                 points_sfx.play()
-                player_score_max = player_score
+                player_score_last = player_score
+                game_speed +=2
+            if player_score >= best_score:
+                best_score = player_score
             player_score_surface = game_font.render(str(int(player_score)), True, ("black"))
             window.blit(player_score_surface, (900, 10))
 
             dino.run()
             dino.jump()
-            if dino.rect.y != 350:
-                window.blit(dino.image1, (dino.rect.x, dino.rect.y))
+
 
             if time.get_ticks() - obstacle_timer >= obstacle_cooldown:
                 obstacle_spawn = True
@@ -210,17 +226,19 @@ if __name__ == '__main__':
                     obstacle_timer = time.get_ticks()
                     obstacle_spawn = False
 
-            ptero_group.update()
             ptero_group.draw(window)
+            ptero_group.update()
 
-            obstacle_group.update()
             obstacle_group.draw(window)
+            obstacle_group.update()
+
 
             if sprite.spritecollide(dino, obstacle_group, False) or sprite.spritecollide(dino, ptero_group, False):
                 finish = True
                 death_sfx.play()
                 end_game()
-
+            if dino.rect.y != 350:
+                window.blit(dino.image1, (dino.rect.x, dino.rect.y))
         clock.tick(FPS)
         display.update()
 
